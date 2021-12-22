@@ -53,43 +53,14 @@ def optimize_count(text_dist, N=98):
         rem -= 1
     return tile_dist
 
-def optimize_score(tile_count, text_dist, N=98, P=180, M=15):
+def optimize_score(tile_count, text_dist, N=98, BUCKET_COUNT=12):
     score_dist = {ch: [ct, 1] for ch, ct in tile_count.items()}
-    rem = P - len(score_dist)
-    BUCKET_COUNT = 15
     mxf = max(text_dist.values())
     mnf = min(text_dist.values())
     w = math.log(mxf - mnf) / math.sqrt(BUCKET_COUNT)
-    temp_buckets = []
-    for i in range(BUCKET_COUNT + 1):
-        temp_buckets.append([])
     for l, f in text_dist.items():
         bk = max(0, min(int((math.log(f) - math.log(mxf)) / w), BUCKET_COUNT))
-        temp_buckets[bk].append(l)
         score_dist[l][1] += bk
-        rem -= bk * score_dist[l][0]
-    buckets = []
-    for b in temp_buckets:
-        if b:
-            buckets.append(sorted(b, key=text_dist.get))
-    while rem > 0:
-        mb = None
-        md = 0.0
-        for b in buckets:
-            d = 0.0
-            for ch in b:
-                ct, sc = score_dist[ch]
-                f = text_dist[ch]
-                d += abs(ct / N - sc * f) - abs(ct / N - (sc + 1) * f)
-            d /= len(b)
-            if not mb or d > md:
-                mb = b
-                md = d
-        for ch in mb:
-            score_dist[ch][1] += 1
-            rem -= score_dist[ch][0]
-            if rem == 0:
-                break
     score_dist['[blank]'] = [2,0]
     return score_dist
 
@@ -98,13 +69,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('infile', action='store')
     parser.add_argument('-d', '--digraph', action='store', default='')
+    parser.add_argument('-t', '--tiles', type=int, default=100)
+    parser.add_argument('-b', '--buckets', type=int, default=12)
     args = parser.parse_args()
 
     with open(args.infile) as fin:
         d = count(fin.read(), args.digraph)
-        print(d)
-        t = optimize_count(d)
-        print(t)
-        print(sorted(t.items(), key=lambda x: x[1], reverse=True))
-        s = optimize_score(t, d)
-        print(s)
+        print('distribution:', d)
+        t = optimize_count(d, args.tiles-2)
+        print('tile count:', t)
+        s = optimize_score(t, d, args.tiles-2, args.buckets)
+        print('scores:', s)
+        print('total score:', sum(x*y for x,y in s.values()))
