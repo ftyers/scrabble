@@ -19,7 +19,7 @@ def tokenize(s_, digraphs):
                     i += len(d)
                     break
             else:
-                yield s[0]
+                yield s[i]
                 i += 1
 
 def count(s, digraphs, lim=0.0005):
