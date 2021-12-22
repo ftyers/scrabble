@@ -59,10 +59,40 @@ def optimize_score(tile_count, text_dist, N=98, BUCKET_COUNT=12):
     mnf = min(text_dist.values())
     w = math.log(mxf - mnf) / math.sqrt(BUCKET_COUNT)
     for l, f in text_dist.items():
-        bk = max(0, min(int((math.log(f) - math.log(mxf)) / w), BUCKET_COUNT))
+        bk = max(0, min(int((math.log(f) - math.log(mxf)) / w), BUCKET_COUNT)-1)
         score_dist[l][1] += bk
     score_dist['[blank]'] = [2,0]
     return score_dist
+
+def table(score_dist):
+    t = []
+    for i in range(max(x[1] for x in score_dist.values()) + 2):
+        l = []
+        for j in range(max(x[0] for x in score_dist.values())+1):
+            l.append([])
+        t.append(l)
+    for i in range(len(t)-1):
+        t[i+1][0].append(str(i))
+    for i in range(len(t[0])-1):
+        t[0][i+1].append('×' + str(i+1))
+    cols = [0]
+    rows = [0]
+    for ch, (ct, sc) in score_dist.items():
+        t[sc+1][ct].append(ch)
+        cols.append(ct)
+        rows.append(sc+1)
+    cols = sorted(set(cols))
+    rows = sorted(set(rows))
+    col_w = [0]*len(cols)
+    for i, c in enumerate(cols):
+        for r in rows:
+            col_w[i] = max(col_w[i], len(' '.join(t[r][c])))
+    for r in rows:
+        l = []
+        for c, w in zip(cols, col_w):
+            s = ' '.join(sorted(t[r][c]))
+            l.append(' '*(w-len(s)) + s)
+        print('   '.join(l))
 
 if __name__ == '__main__':
     import argparse, sys
@@ -81,3 +111,4 @@ if __name__ == '__main__':
         s = optimize_score(t, d, args.tiles-2, args.buckets)
         print('scores:', s)
         print('total score:', sum(x*y for x,y in s.values()))
+        table(s)
