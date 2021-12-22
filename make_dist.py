@@ -2,6 +2,7 @@
 
 import unicodedata
 from collections import defaultdict
+import math
 
 def tokenize(s_, digraphs):
     if not digraphs:
@@ -52,25 +53,43 @@ def optimize_count(text_dist, N=98):
         rem -= 1
     return tile_dist
 
-def optimize_score(tile_count, text_dist, P=190):
-    score_dist = {c: [n, 1] for c, n in tile_count.items()}
+def optimize_score(tile_count, text_dist, N=98, P=180, M=15):
+    score_dist = {ch: [ct, 1] for ch, ct in tile_count.items()}
     rem = P - len(score_dist)
+    BUCKET_COUNT = 15
+    mxf = max(text_dist.values())
+    mnf = min(text_dist.values())
+    w = math.log(mxf - mnf) / math.sqrt(BUCKET_COUNT)
+    temp_buckets = []
+    for i in range(BUCKET_COUNT + 1):
+        temp_buckets.append([])
+    for l, f in text_dist.items():
+        bk = max(0, min(int((math.log(f) - math.log(mxf)) / w), BUCKET_COUNT))
+        temp_buckets[bk].append(l)
+        score_dist[l][1] += bk
+        rem -= bk * score_dist[l][0]
+    buckets = []
+    for b in temp_buckets:
+        if b:
+            buckets.append(sorted(b, key=text_dist.get))
     while rem > 0:
-        mc = None
+        mb = None
         md = 0.0
-        for ch, (ct, sc) in score_dist.items():
-            f = text_dist[ch]
-            d = abs(ct - (sc * f * 100)) - abs(ct - ((sc + 1) * f * 100))
-            d /= (sc + 1)
-            #d = ct - (sc * f * 100)
-            #print(ch, ct, sc, f, d)
-            if not mc or d > md:
-                mc = ch
+        for b in buckets:
+            d = 0.0
+            for ch in b:
+                ct, sc = score_dist[ch]
+                f = text_dist[ch]
+                d += abs(ct / N - sc * f) - abs(ct / N - (sc + 1) * f)
+            d /= len(b)
+            if not mb or d > md:
+                mb = b
                 md = d
-        score_dist[mc][1] += 1
-        rem -= 1
-        #print('max:', mc)
-        #break
+        for ch in mb:
+            score_dist[ch][1] += 1
+            rem -= score_dist[ch][0]
+            if rem == 0:
+                break
     score_dist['[blank]'] = [2,0]
     return score_dist
 
