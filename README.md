@@ -52,4 +52,4 @@ This library was developed by Daniel Swanson at the request of Francis Tyers for
 of scrabble letters needed and their distribution for a given language. The objective was to make a 
 scrabble set for San Mateo Huave from combinations of other scrabble sets.
 
-![Scrabble for San Mateo Huave](https://github.com/ftyers/scrabble/blob/main/img/huv.jpg?raw=true)
+![Scrabble for San Mateo Huave](https://github.com/ftyers/scrabble/blob/master/img/huv.jpg?raw=true)
