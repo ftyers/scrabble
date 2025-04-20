@@ -1,8 +1,10 @@
-# scrabble
+# elbbarcs 
 
-Find Scrabble letter distributions for a corpus
+Find Scrabble™ letter distributions for a corpus.
 
-##  Library
+## Usage
+
+###  Library
 ```python
 from elbbarcs import Estimator
 
@@ -24,7 +26,7 @@ The constructor takes the following arguments:
 * `tiles`: The number of tiles
 * `buckets`: The number of buckets 
 
-## Command line program
+### Command line program
 
 The library functionality is also exposed via the `elbbarcs` command-line utility.
 
@@ -43,3 +45,11 @@ $ elbbarcs brezhoneg.txt --digraph "ch zh c'h"
 ```
 
 This table indicates that for Breton, there should be 2 tiles for `K`, which will have a score of `3`.
+
+## History
+
+This library was developed by Daniel Swanson at the request of Francis Tyers for calculating the number 
+of scrabble letters needed and their distribution for a given language. The objective was to make a 
+scrabble set for San Mateo Huave from combinations of other scrabble sets.
+
+[](./img/huv.png)
