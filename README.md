@@ -48,7 +48,7 @@ This table indicates that for Breton, there should be 2 tiles for `K`, which wil
 
 ## History
 
-This library was developed by Daniel Swanson at the request of Francis Tyers for calculating the number 
+This library was developed by [Daniel Swanson](https://github.com/mr-martian/) at the request of Francis Tyers for calculating the number 
 of scrabble letters needed and their distribution for a given language. The objective was to make a 
 scrabble set for San Mateo Huave from combinations of other scrabble sets.
 
